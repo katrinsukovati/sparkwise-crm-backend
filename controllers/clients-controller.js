@@ -156,10 +156,10 @@ const updateClientById = async (req, res) => {
 const createNewClient = async (req, res) => {
   console.log("Webhook received:", req.body);
 
-  // Extract the payload (supports both nested `data` and flat format)
+  // Extract the payload (supports both nested data which is how wix sends it and flat format)
   const payload = req.body.data || req.body;
 
-  const {
+  let {
     parent_first_name,
     parent_last_name,
     parent_phone,
@@ -174,6 +174,18 @@ const createNewClient = async (req, res) => {
     how_did_you_hear,
   } = payload;
 
+  // Trim all the input
+  parent_first_name = parent_first_name.trim();
+  parent_last_name = parent_last_name.trim();
+  parent_phone = parent_phone.trim();
+  parent_email = parent_email.trim();
+  child_first_name = child_first_name.trim();
+  child_grade = child_grade.trim();
+  subjects_interested = subjects_interested.trim();
+  city = city.trim();
+  postal_code = postal_code.trim();
+  how_did_you_hear = how_did_you_hear.trim();
+
   // Validation
   const emailRegEx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const phoneRegEx =
@@ -186,6 +198,7 @@ const createNewClient = async (req, res) => {
     return res.status(400).json({ message: "Parent last name is invalid." });
   }
   if (!parent_phone.trim() || !phoneRegEx.test(parent_phone)) {
+    console.log(phoneRegEx.test(parent_phone));
     return res.status(400).json({ message: "Phone number is invalid." });
   }
   if (!parent_email.trim() || !emailRegEx.test(parent_email)) {
