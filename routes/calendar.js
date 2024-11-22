@@ -1,16 +1,20 @@
 import express from "express";
-import { getEvents } from "../controllers/calendar-controller.js";
+import {
+  getEvents,
+  getSingleEvent,
+  createEvent,
+} from "../controllers/calendar-controller.js";
 
 const router = express.Router();
 
 // Get all calendar events
 router.get("/", getEvents);
 
-// // Get a single calendar event
-// router.get("/events/:id", getSingleEvent);
+// Get a single calendar event
+router.get("/:id", getSingleEvent);
 
 // // Add a new calendar event
-// router.post("/events", addEvent);
+router.post("/", createEvent);
 
 // // Update a specific calendar event by ID
 // router.put("/events/:id", updateEvent);
