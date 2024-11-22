@@ -155,6 +155,10 @@ const updateClientById = async (req, res) => {
 // PUT http://localhost:8080/clients/1
 const createNewClient = async (req, res) => {
   console.log("Webhook received:", req.body);
+
+  // Extract the payload (supports both nested `data` and flat format)
+  const payload = req.body.data || req.body;
+
   const {
     parent_first_name,
     parent_last_name,
@@ -168,14 +172,13 @@ const createNewClient = async (req, res) => {
     additional_notes = "",
     status = "Form Filled Out",
     how_did_you_hear,
-  } = req.body;
+  } = payload;
 
   // Validation
   const emailRegEx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const phoneRegEx =
     /^(\+?\d{1,2})?\s?\(?(\d{3})\)?[-. ]?(\d{3})[-. ]?(\d{4})$/;
 
-  // Mandatory fields validation
   if (typeof parent_first_name !== "string" || !parent_first_name.trim()) {
     return res.status(400).json({ message: "Parent first name is invalid." });
   }
@@ -198,7 +201,6 @@ const createNewClient = async (req, res) => {
     return res.status(400).json({ message: "Subjects interested is invalid." });
   }
 
-  // Optional fields validation
   if (typeof city !== "string") {
     return res.status(400).json({ message: "City is invalid." });
   }
@@ -219,9 +221,23 @@ const createNewClient = async (req, res) => {
 
   // Try creating a new client
   try {
-    const result = await knex("clients").insert(req.body);
+    const result = await knex("clients").insert({
+      parent_first_name,
+      parent_last_name,
+      parent_phone,
+      parent_email,
+      child_first_name,
+      child_grade,
+      subjects_interested,
+      city,
+      postal_code,
+      additional_notes,
+      status,
+      how_did_you_hear,
+    });
     res.status(201).json({ message: "Client has been created successfully." });
   } catch (error) {
+    console.error("Error creating client:", error);
     res.status(500).json({
       message: `Unable to create client: ${error}`,
     });
