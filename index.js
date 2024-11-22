@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 
 // import routers
 import clientsRoutes from "./routes/clients.js";
+import calendarRoutes from "./routes/calendar.js";
 
 dotenv.config();
 const app = express();
@@ -16,8 +17,11 @@ app.get("/", async (req, res) => {
   res.status(200).json({ message: "Welcome to SparkWise CRM" });
 });
 
-// Using routes
+// Using routes for clients
 app.use("/clients", clientsRoutes);
+
+// Using routes for calendar
+app.use("/calendar", calendarRoutes);
 
 // Processing unsupported routes
 app.use((req, res) => {
