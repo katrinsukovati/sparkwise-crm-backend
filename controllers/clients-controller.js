@@ -154,6 +154,7 @@ const updateClientById = async (req, res) => {
 // PUT for updating a single client by id
 // PUT http://localhost:8080/clients/1
 const createNewClient = async (req, res) => {
+  console.log("Webhook received:", req.body);
   const {
     parent_first_name,
     parent_last_name,
@@ -164,8 +165,8 @@ const createNewClient = async (req, res) => {
     subjects_interested,
     city,
     postal_code,
-    additional_notes="",
-    status="Form Filled Out",
+    additional_notes = "",
+    status = "Form Filled Out",
     how_did_you_hear,
   } = req.body;
 
