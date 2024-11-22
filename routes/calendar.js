@@ -3,6 +3,7 @@ import {
   getEvents,
   getSingleEvent,
   createEvent,
+  deleteEvent,
 } from "../controllers/calendar-controller.js";
 
 const router = express.Router();
@@ -19,7 +20,7 @@ router.post("/", createEvent);
 // // Update a specific calendar event by ID
 // router.put("/events/:id", updateEvent);
 
-// // Delete a specific calendar event by ID
-// router.delete("/events/:id", deleteEvent);
+// Delete a specific calendar event by ID
+router.delete("/:id", deleteEvent);
 
 export default router;

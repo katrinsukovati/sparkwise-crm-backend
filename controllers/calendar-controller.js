@@ -88,4 +88,20 @@ const createEvent = async (req, res) => {
   }
 };
 
-export { getEvents, createEvent, getSingleEvent };
+// Delete an event
+const deleteEvent = async (req, res) => {
+  const event_id = req.params.id;
+  try {
+    const response = await calendar.events.delete({
+      calendarId: GOOGLE_CALENDAR_EMAIL,
+      eventId: event_id,
+    });
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({
+      message: `Error deleting event with id ${event_id}: ${error.message}`,
+    });
+  }
+};
+
+export { getEvents, createEvent, getSingleEvent, deleteEvent };
