@@ -196,9 +196,6 @@ const createNewClient = async (req, res) => {
   if (typeof subjects_interested !== "string" || !subjects_interested.trim()) {
     return res.status(400).json({ message: "Subjects interested is invalid." });
   }
-  if (typeof status !== "string" || !status.trim()) {
-    return res.status(400).json({ message: "Status is invalid." });
-  }
 
   // Optional fields validation
   if (typeof city !== "string") {
@@ -214,6 +211,9 @@ const createNewClient = async (req, res) => {
   }
   if (typeof additional_notes !== "string") {
     return res.status(400).json({ message: "Additional notes is invalid." });
+  }
+  if (typeof status !== "string") {
+    return res.status(400).json({ message: "Status is invalid." });
   }
 
   // Try creating a new client
