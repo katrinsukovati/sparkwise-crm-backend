@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 
+app.use(cors());
+
 // import routers
 import clientsRoutes from "./routes/clients.js";
 
