@@ -164,8 +164,8 @@ const createNewClient = async (req, res) => {
     subjects_interested,
     city,
     postal_code,
-    additional_notes,
-    status,
+    additional_notes="",
+    status="Form Filled Out",
     how_did_you_hear,
   } = req.body;
 
