@@ -47,6 +47,37 @@ const getEvents = async (req, res) => {
   }
 };
 
+// Get todays events for dashboard
+const getTodaysEvents = async (req, res) => {
+  try {
+    // Get current date
+    const now = new Date();
+    const startOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
+    const endOfDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + 1
+    );
+
+    const response = await calendar.events.list({
+      calendarId: GOOGLE_CALENDAR_EMAIL,
+      timeMin: startOfDay,
+      timeMax: endOfDay,
+      singleEvents: true,
+      orderBy: "startTime",
+    });
+    res.status(200).json(response.data.items);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: `Error fetching todays events: ${error.message}` });
+  }
+};
+
 // Get Single Event
 const getSingleEvent = async (req, res) => {
   const event_id = req.params.id;
@@ -88,6 +119,32 @@ const createEvent = async (req, res) => {
   }
 };
 
+// Update an event
+const updateEvent = async (req, res) => {
+  const event_id = req.params.id;
+  const { summary, description, start, end } = req.body;
+  try {
+    const event = {
+      summary,
+      description,
+      start: { dateTime: start }, // ISO 8601 format
+      end: { dateTime: end }, // ISO 8601 format
+    };
+
+    const response = await calendar.events.update({
+      calendarId: GOOGLE_CALENDAR_EMAIL,
+      resource: event,
+      eventId: event_id,
+    });
+
+    res
+      .status(201)
+      .json({ message: "Event updated successfully", event: response.data });
+  } catch (error) {
+    res.status(500).json({ message: `Error updating event: ${error.message}` });
+  }
+};
+
 // Delete an event
 const deleteEvent = async (req, res) => {
   const event_id = req.params.id;
@@ -104,4 +161,11 @@ const deleteEvent = async (req, res) => {
   }
 };
 
-export { getEvents, createEvent, getSingleEvent, deleteEvent };
+export {
+  getEvents,
+  createEvent,
+  getSingleEvent,
+  deleteEvent,
+  updateEvent,
+  getTodaysEvents,
+};
