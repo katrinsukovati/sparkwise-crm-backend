@@ -5,8 +5,6 @@ import fs from "fs";
 // Later on, I would like to change this so it has the users google gmail (through log in)
 const { GOOGLE_CALENDAR_EMAIL } = process.env;
 
-// Load the service account credentials
-// const credentials = JSON.parse(fs.readFileSync("./service-account-key.json"));
 
 const credentials = {
   type: "service_account",
