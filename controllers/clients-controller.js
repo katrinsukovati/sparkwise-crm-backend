@@ -154,7 +154,6 @@ const updateClientById = async (req, res) => {
 // PUT for updating a single client by id
 // PUT http://localhost:8080/clients/1
 const createNewClient = async (req, res) => {
-  console.log("Webhook received:", req.body);
 
   // Extract the payload (supports both nested data which is how wix sends it and flat format)
   const payload = req.body.data || req.body;
@@ -198,7 +197,6 @@ const createNewClient = async (req, res) => {
     return res.status(400).json({ message: "Parent last name is invalid." });
   }
   if (!parent_phone.trim() || !phoneRegEx.test(parent_phone)) {
-    console.log(phoneRegEx.test(parent_phone));
     return res.status(400).json({ message: "Phone number is invalid." });
   }
   if (!parent_email.trim() || !emailRegEx.test(parent_email)) {
@@ -250,7 +248,6 @@ const createNewClient = async (req, res) => {
     });
     res.status(201).json({ message: "Client has been created successfully." });
   } catch (error) {
-    console.error("Error creating client:", error);
     res.status(500).json({
       message: `Unable to create client: ${error}`,
     });
