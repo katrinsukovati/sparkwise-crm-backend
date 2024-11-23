@@ -6,6 +6,7 @@ import {
   deleteEvent,
   updateEvent,
   getTodaysEvents,
+  getEventsRange,
 } from "../controllers/calendar-controller.js";
 
 const router = express.Router();
@@ -17,15 +18,18 @@ router.get("/", getEvents);
 router.get("/today", getTodaysEvents);
 
 // Get a single calendar event
-router.get("/:id", getSingleEvent);
+router.get("/event/:id", getSingleEvent);
 
-// // Add a new calendar event
+// Get a range of calendar events
+router.get("/range", getEventsRange);
+
+// Add a new calendar event
 router.post("/", createEvent);
 
 // Update a specific calendar event by ID
-router.put("/:id", updateEvent);
+router.put("/event/:id", updateEvent);
 
 // Delete a specific calendar event by ID
-router.delete("/:id", deleteEvent);
+router.delete("/event/:id", deleteEvent);
 
 export default router;

@@ -79,8 +79,8 @@ const getTodaysEvents = async (req, res) => {
 
     const response = await calendar.events.list({
       calendarId: GOOGLE_CALENDAR_EMAIL,
-      timeMin: startOfDay,
-      timeMax: endOfDay,
+      timeMin: startOfDay.toISOString(),
+      timeMax: endOfDay.toISOString(),
       singleEvents: true,
       orderBy: "startTime",
     });
@@ -92,10 +92,38 @@ const getTodaysEvents = async (req, res) => {
   }
 };
 
+// Get todays events for dashboard
+const getEventsRange = async (req, res) => {
+  const { start, end } = req.query;
+
+  // Validation logic for checking if a date is valid
+  const isValidDate = (date) => !isNaN(Date.parse(date));
+
+  if (!start.trim() || !isValidDate(start)) {
+    return res.status(400).json({ message: "Invalid start query field." });
+  }
+  if (!end.trim() || !isValidDate(end)) {
+    return res.status(400).json({ message: "Invalid end query field." });
+  }
+  try {
+    const response = await calendar.events.list({
+      calendarId: GOOGLE_CALENDAR_EMAIL,
+      timeMin: start,
+      timeMax: end,
+      singleEvents: true,
+      orderBy: "startTime",
+    });
+    res.status(200).json(response.data.items);
+  } catch (error) {
+    res.status(500).json({
+      message: `Error fetching events from the specified range from start: ${start} until end: ${end}: ${error.message}`,
+    });
+  }
+};
+
 // Get Single Event
 const getSingleEvent = async (req, res) => {
   const event_id = req.params.id;
-  console.log(event_id);
   try {
     const response = await calendar.events.get({
       calendarId: GOOGLE_CALENDAR_EMAIL,
@@ -112,6 +140,20 @@ const getSingleEvent = async (req, res) => {
 // Create a new event
 const createEvent = async (req, res) => {
   const { summary, description, start, end } = req.body;
+
+  // Validation logic for checking if a date is valid
+  const isValidDate = (date) => !isNaN(Date.parse(date));
+
+  // Validation
+  if (!summary.trim()) {
+    return res.status(400).json({ message: "Invalid summary field." });
+  }
+  if (!start.trim() || !isValidDate(start)) {
+    return res.status(400).json({ message: "Invalid start field." });
+  }
+  if (!end.trim() || !isValidDate(end)) {
+    return res.status(400).json({ message: "Invalid end field." });
+  }
   try {
     const event = {
       summary,
@@ -137,12 +179,26 @@ const createEvent = async (req, res) => {
 const updateEvent = async (req, res) => {
   const event_id = req.params.id;
   const { summary, description, start, end } = req.body;
+
+  // Validation logic
+  const isValidDate = (date) => !isNaN(Date.parse(date));
+
+  // Validation
+  if (!summary.trim()) {
+    return res.status(400).json({ message: "Missing summary field." });
+  }
+  if (!start.trim() || !isValidDate(start)) {
+    return res.status(400).json({ message: "Missing start field." });
+  }
+  if (!end.trim() || !isValidDate(end)) {
+    return res.status(400).json({ message: "Missing end field." });
+  }
   try {
     const event = {
       summary,
       description,
-      start: { dateTime: start }, // ISO 8601 format
-      end: { dateTime: end }, // ISO 8601 format
+      start: { dateTime: start },
+      end: { dateTime: end },
     };
 
     const response = await calendar.events.update({
@@ -182,4 +238,5 @@ export {
   deleteEvent,
   updateEvent,
   getTodaysEvents,
+  getEventsRange,
 };
