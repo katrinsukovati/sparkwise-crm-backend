@@ -6,7 +6,10 @@ const knex = initKnex(configuration);
 // GET http://localhost:8080/clients
 const getAllClients = async (req, res) => {
   try {
-    const clients = await knex("clients").select(
+    const { search = "" } = req.query;
+
+    // build base query
+    const query = knex("clients").select(
       "id",
       "parent_first_name",
       "parent_last_name",
@@ -22,9 +25,30 @@ const getAllClients = async (req, res) => {
       "how_did_you_hear",
       "created_at"
     );
+
+    // add search filter but only if provided in the request
+    if (search) {
+      query.where((builder) => {
+        builder
+          .orWhere("parent_first_name", "like", `%${search}%`)
+          .orWhere("parent_last_name", "like", `%${search}%`)
+          .orWhere("parent_phone", "like", `%${search}%`)
+          .orWhere("parent_email", "like", `%${search}%`)
+          .orWhere("child_first_name", "like", `%${search}%`)
+          .orWhere("child_grade", "like", `%${search}%`)
+          .orWhere("subjects_interested", "like", `%${search}%`)
+          .orWhere("city", "like", `%${search}%`)
+          .orWhere("postal_code", "like", `%${search}%`)
+          .orWhere("additional_notes", "like", `%${search}%`)
+          .orWhere("status", "like", `%${search}%`)
+          .orWhere("how_did_you_hear", "like", `%${search}%`);
+      });
+    }
+
+    const clients = await query;
     res.status(200).json(clients);
   } catch (error) {
-    res.status(500).json({ message: `Error getting all clients: ${error}` });
+    res.status(500).json({ message: `Error getting clients: ${error}` });
   }
 };
 
@@ -154,7 +178,6 @@ const updateClientById = async (req, res) => {
 // PUT for updating a single client by id
 // PUT http://localhost:8080/clients/1
 const createNewClient = async (req, res) => {
-
   // Extract the payload (supports both nested data which is how wix sends it and flat format)
   const payload = req.body.data || req.body;
 
