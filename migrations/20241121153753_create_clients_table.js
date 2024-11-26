@@ -15,7 +15,7 @@ export function up(knex) {
     table.string("city").nullable();
     table.string("postal_code").nullable();
     table.string("additional_notes").nullable();
-    table.string("status").notNullable().defaultTo("Form Filled Out");
+    table.string("status").notNullable().defaultTo("Form Submitted");
     table.string("how_did_you_hear").nullable();
     table.timestamp("created_at").defaultTo(knex.fn.now());
     table
