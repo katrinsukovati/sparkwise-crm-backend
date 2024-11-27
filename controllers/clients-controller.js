@@ -8,6 +8,15 @@ const getAllClients = async (req, res) => {
   try {
     const { search = "" } = req.query;
 
+    const { sortBy = "newest" } = req.query; // get sorting option from query params
+
+    let sortColumn = "created_at";
+    let sortDirection = "desc"; // this will be the default: newest (descending)
+
+    if (sortBy === "oldest") {
+      sortDirection = "asc"; // oldest: ascending
+    }
+
     // build base query
     const query = knex("clients").select(
       "id",
@@ -45,7 +54,8 @@ const getAllClients = async (req, res) => {
       });
     }
 
-    const clients = await query;
+    // filter data prior to getting clients
+    const clients = await query.orderBy(sortColumn, sortDirection);
     res.status(200).json(clients);
   } catch (error) {
     res.status(500).json({ message: `Error getting clients: ${error}` });
