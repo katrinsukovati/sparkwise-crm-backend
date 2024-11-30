@@ -5,7 +5,7 @@ import axios from "axios";
 
 // import routers
 import clientsRoutes from "./routes/clients.js";
-import calendarRoutes from "./routes/calendar.js";
+import classTypesRoutes from "./routes/class_types.js";
 
 dotenv.config();
 const {
@@ -29,8 +29,8 @@ app.get("/", async (req, res) => {
 // Using routes for clients
 app.use("/clients", clientsRoutes);
 
-// Using routes for calendar
-app.use("/calendar", calendarRoutes);
+// Using the class types routes
+app.use("/class_types", classTypesRoutes);
 
 app.post("/create-google-event", async (req, res) => {
   const { accessToken, eventDetails } = req.body;
