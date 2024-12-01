@@ -6,7 +6,22 @@ const knex = initKnex(configuration);
 // Get all students
 const getAllStudents = async (req, res) => {
   try {
-    const students = await knex("students")
+    const { search = "" } = req.query;
+    const { sortBy = "newest" } = req.query; // sorting option
+
+    // default sorting column and direction
+    let sortColumn = "students.created_at";
+    let sortDirection = "desc"; // newest by default
+
+    if (sortBy === "oldest") {
+      sortDirection = "asc"; // oldest
+    } else if (sortBy === "name") {
+      sortColumn = "students.first_name";
+      sortDirection = "asc"; // sort by first name alphabetically
+    }
+
+    // Base query with joins
+    const query = knex("students")
       .join("clients", "students.parent_id", "clients.id") // join with clients for parent details
       .leftJoin(
         "class_enrollments",
@@ -32,10 +47,28 @@ const getAllStudents = async (req, res) => {
         "classes.start_date",
         "classes.end_date",
         "classes.start_time",
-        "classes.end_time"
+        "classes.end_time",
+        "students.created_at" // needed for sorting by newest/oldest
       );
 
-    // group by student id
+    // add search filter
+    if (search) {
+      query.where((builder) => {
+        builder
+          .orWhere("students.first_name", "like", `%${search}%`)
+          .orWhere("students.last_name", "like", `%${search}%`)
+          .orWhere("students.email", "like", `%${search}%`)
+          .orWhere("clients.parent_first_name", "like", `%${search}%`)
+          .orWhere("clients.parent_last_name", "like", `%${search}%`)
+          .orWhere("clients.parent_email", "like", `%${search}%`)
+          .orWhere("clients.parent_phone", "like", `%${search}%`);
+      });
+    }
+
+    // apply sorting
+    const students = await query.orderBy(sortColumn, sortDirection);
+
+    // group students by ID
     const groupedStudents = students.reduce((acc, student) => {
       const {
         student_id,
