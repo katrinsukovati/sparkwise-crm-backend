@@ -12,7 +12,7 @@ const getAllClassTypes = async (req, res) => {
   }
 };
 
-// Get a single class type by ID
+// Get a single class type by id
 const getClassTypeById = async (req, res) => {
   const { id } = req.params;
   try {
@@ -55,7 +55,7 @@ const createClassType = async (req, res) => {
   }
 };
 
-// Update a class type by ID
+// Update a class type by id
 const updateClassTypeById = async (req, res) => {
   const { id } = req.params;
   const { title, subject, grades } = req.body;
@@ -81,7 +81,7 @@ const updateClassTypeById = async (req, res) => {
   }
 };
 
-// Delete a class type by ID
+// Delete a class type by id
 const deleteClassTypeById = async (req, res) => {
   const { id } = req.params;
 

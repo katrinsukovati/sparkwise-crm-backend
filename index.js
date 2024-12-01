@@ -6,6 +6,11 @@ import axios from "axios";
 // import routers
 import clientsRoutes from "./routes/clients.js";
 import classTypesRoutes from "./routes/class_types.js";
+import classesRoutes from "./routes/classes.js";
+import teachersRoutes from "./routes/teachers.js";
+import studentsRoutes from "./routes/students.js";
+import classEnrollmentsRoutes from "./routes/class_enrollments.js";
+import semestersRoutes from "./routes/semesters.js";
 
 dotenv.config();
 const {
@@ -30,8 +35,24 @@ app.get("/", async (req, res) => {
 app.use("/clients", clientsRoutes);
 
 // Using the class types routes
-app.use("/class_types", classTypesRoutes);
+app.use("/class-types", classTypesRoutes);
 
+// Using the class enrollments routes
+app.use("/class-enrollments", classEnrollmentsRoutes);
+
+// Using the classes routes
+app.use("/classes", classesRoutes);
+
+// Using the teachers routes
+app.use("/teachers", teachersRoutes);
+
+// Using the students routes
+app.use("/students", studentsRoutes);
+
+// Using the semesters routes
+app.use("/semesters", semestersRoutes);
+
+// Google events
 app.post("/create-google-event", async (req, res) => {
   const { accessToken, eventDetails } = req.body;
 

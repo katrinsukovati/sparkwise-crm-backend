@@ -5,7 +5,7 @@
 export function up(knex) {
   return knex.schema.createTable("class_types", (table) => {
     table.increments("id").primary();
-    table.string("title").notNullable(); 
+    table.string("title").notNullable();
     table.string("subject").notNullable();
     table.string("grades").notNullable();
   });
