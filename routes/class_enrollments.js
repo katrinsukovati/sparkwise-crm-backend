@@ -4,20 +4,24 @@ import {
   getEnrollmentById,
   enrollStudent,
   deleteEnrollmentById,
+  getEnrollmentsByStudentId,
 } from "../controllers/class_enrollments-controller.js";
 
 const router = express.Router();
 
-// Get all enrollments
+// get all enrollments
 router.get("/", getAllEnrollments);
 
-// Get single enrollment by ID
+// get single enrollment by ID
 router.get("/:id", getEnrollmentById);
 
-// Enroll a student in a class
+// get all the enrollments for one student based on their id
+router.get("/student/:student_id", getEnrollmentsByStudentId);
+
+// enroll a student in a class
 router.post("/", enrollStudent);
 
-// Delete an enrollment by ID
+// delete an enrollment by id
 router.delete("/:id", deleteEnrollmentById);
 
 export default router;

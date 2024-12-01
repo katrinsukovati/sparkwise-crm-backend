@@ -3,22 +3,13 @@ import configuration from "../knexfile.js";
 
 const knex = initKnex(configuration);
 
-// Get all enrollments
+// get all enrollments
 const getAllEnrollments = async (req, res) => {
   try {
-    const enrollments = await knex("class_enrollments")
-      .join("classes", "class_enrollments.class_id", "classes.id")
-      .join("students", "class_enrollments.student_id", "students.id")
-      .select(
-        "class_enrollments.id",
-        "classes.id as class_id",
-        "classes.days",
-        "classes.start_date",
-        "classes.end_date",
-        "students.id as student_id",
-        "students.first_name",
-        "students.last_name"
-      );
+    const enrollments = await knex("class_enrollments").select(
+      "student_id",
+      "class_id"
+    );
 
     res.status(200).json(enrollments);
   } catch (error) {
@@ -26,39 +17,56 @@ const getAllEnrollments = async (req, res) => {
   }
 };
 
-// Get single enrollment by id
+// get single enrollment by id
 const getEnrollmentById = async (req, res) => {
+  if (!req.params.id) {
+    return res.status(400).json({ message: "class enrollment id is required" });
+  }
+
   try {
-    const enrollment = await knex("class_enrollments")
-      .where("class_enrollments.id", req.params.id)
+    const enrollments = await knex("class_enrollments")
+      .select("student_id", "class_id")
+      .where("id", req.params.id);
+
+    res.status(200).json(enrollments);
+  } catch (error) {
+    res.status(500).json({ message: `Error retrieving enrollments: ${error}` });
+  }
+};
+
+// get enrollments by student ID
+const getEnrollmentsByStudentId = async (req, res) => {
+  const { student_id } = req.params;
+
+  if (!student_id) {
+    return res.status(400).json({ message: "Student ID is required." });
+  }
+
+  try {
+    const enrollments = await knex("class_enrollments")
+      .where("student_id", student_id)
       .join("classes", "class_enrollments.class_id", "classes.id")
-      .join("students", "class_enrollments.student_id", "students.id")
+      .join("semesters", "classes.semester_id", "semesters.id")
+      .join("class_types", "classes.class_type_id", "class_types.id")
       .select(
-        "class_enrollments.id",
+        "class_enrollments.id as enrollment_id",
         "classes.id as class_id",
         "classes.days",
         "classes.start_date",
         "classes.end_date",
-        "students.id as student_id",
-        "students.first_name",
-        "students.last_name"
-      )
-      .first();
+        "semesters.name as semester_name",
+        "class_types.title as class_title",
+        "class_types.subject as class_subject"
+      );
 
-    if (!enrollment) {
-      return res
-        .status(404)
-        .json({ message: `Enrollment not found with ID: ${req.params.id}` });
-    }
-    res.status(200).json(enrollment);
+    res.status(200).json(enrollments);
   } catch (error) {
-    res.status(500).json({
-      message: `Error retrieving enrollment with ID ${req.params.id}: ${error}`,
-    });
+    console.error("Error fetching enrollments:", error);
+    res.status(500).json({ message: "Failed to fetch enrollments." });
   }
 };
 
-// Enroll a student in a class
+// enroll a student in a specific clas
 const enrollStudent = async (req, res) => {
   const { class_id, student_id } = req.body;
 
@@ -69,6 +77,20 @@ const enrollStudent = async (req, res) => {
   }
 
   try {
+    // must validate class_id to make sure it exists
+    const classExists = await knex("classes").where("id", class_id).first();
+    if (!classExists) {
+      return res.status(404).json({ message: "Class not found." });
+    }
+
+    // validate student_id to make sure it even exists
+    const studentExists = await knex("students")
+      .where("id", student_id)
+      .first();
+    if (!studentExists) {
+      return res.status(404).json({ message: "Student not found." });
+    }
+
     const [id] = await knex("class_enrollments").insert({
       class_id,
       student_id,
@@ -80,7 +102,7 @@ const enrollStudent = async (req, res) => {
   }
 };
 
-// Delete an enrollment by id
+// delete an enrollment using id of class enrollemt (not student id)
 const deleteEnrollmentById = async (req, res) => {
   try {
     const deleted = await knex("class_enrollments")
@@ -106,4 +128,5 @@ export {
   getEnrollmentById,
   enrollStudent,
   deleteEnrollmentById,
+  getEnrollmentsByStudentId,
 };

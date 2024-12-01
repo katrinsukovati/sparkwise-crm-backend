@@ -3,31 +3,58 @@ import configuration from "../knexfile.js";
 
 const knex = initKnex(configuration);
 
-// Get all classes
+// get all classes
 const getAllClasses = async (req, res) => {
   try {
-    const classes = await knex("classes").select("*");
+    const classes = await knex("classes")
+      .join("semesters", "classes.semester_id", "semesters.id")
+      .join("class_types", "classes.class_type_id", "class_types.id")
+      .select(
+        "classes.*",
+        "semesters.name as semester_name",
+        "class_types.title as class_title",
+        "class_types.subject as class_subject",
+        "class_types.grades as class_grades"
+      );
+
     res.status(200).json(classes);
   } catch (error) {
-    res.status(500).json({ message: "Error retrieving classes", error });
+    console.error("Error fetching classes:", error);
+    res.status(500).json({ message: "Failed to fetch classes." });
   }
 };
-
-// Get a class by id
+// get a class by id
 const getClassById = async (req, res) => {
   const { id } = req.params;
+
   try {
-    const classData = await knex("classes").where({ id }).first();
+    const classData = await knex("classes")
+      .where("classes.id", id)
+      .join("semesters", "classes.semester_id", "semesters.id")
+      .join("class_types", "classes.class_type_id", "class_types.id")
+      .select(
+        "classes.*", 
+        "semesters.name as semester_name",
+        "class_types.title as class_title",
+        "class_types.subject as class_subject",
+        "class_types.grades as class_grades"
+      )
+      .first();
+
     if (!classData) {
-      return res.status(404).json({ message: "Class not found" });
+      return res
+        .status(404)
+        .json({ message: `Class with ID ${id} not found.` });
     }
+
     res.status(200).json(classData);
   } catch (error) {
-    res.status(500).json({ message: "Error retrieving class", error });
+    console.error("Error fetching class by ID:", error);
+    res.status(500).json({ message: "Failed to fetch class by ID." });
   }
 };
 
-// Create a new class
+// create a new class
 const createClass = async (req, res) => {
   const {
     class_type_id,
@@ -71,7 +98,7 @@ const createClass = async (req, res) => {
   }
 };
 
-// Update an existing class by id
+// update an existing class by id
 const updateClass = async (req, res) => {
   const { id } = req.params;
   const updates = req.body;
@@ -88,7 +115,7 @@ const updateClass = async (req, res) => {
   }
 };
 
-// Delete a class by id
+// delete a class by id
 const deleteClass = async (req, res) => {
   const { id } = req.params;
 
