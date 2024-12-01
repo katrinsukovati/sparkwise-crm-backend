@@ -6,29 +6,171 @@ const knex = initKnex(configuration);
 // Get all students
 const getAllStudents = async (req, res) => {
   try {
-    const students = await knex("students").select("*");
-    res.status(200).json(students);
+    const students = await knex("students")
+      .join("clients", "students.parent_id", "clients.id") // join with clients for parent details
+      .leftJoin(
+        "class_enrollments",
+        "students.id",
+        "class_enrollments.student_id"
+      ) // join with class_enrollments
+      .leftJoin("classes", "class_enrollments.class_id", "classes.id") // join with classes for course details
+      .select(
+        "students.id as student_id",
+        "students.first_name as student_first_name",
+        "students.last_name as student_last_name",
+        "students.email as student_email",
+        "students.date_of_birth",
+        "students.grade",
+        "students.additional_notes",
+        "clients.id as parent_id",
+        "clients.parent_first_name",
+        "clients.parent_last_name",
+        "clients.parent_email",
+        "clients.parent_phone",
+        "classes.id as class_id",
+        "classes.days",
+        "classes.start_date",
+        "classes.end_date",
+        "classes.start_time",
+        "classes.end_time"
+      );
+
+    // group by student id
+    const groupedStudents = students.reduce((acc, student) => {
+      const {
+        student_id,
+        student_first_name,
+        student_last_name,
+        student_email,
+        date_of_birth,
+        grade,
+        additional_notes,
+        parent_id,
+        parent_first_name,
+        parent_last_name,
+        parent_email,
+        parent_phone,
+        class_id,
+        days,
+        start_date,
+        end_date,
+        start_time,
+        end_time,
+      } = student;
+
+      if (!acc[student_id]) {
+        acc[student_id] = {
+          student_id,
+          first_name: student_first_name,
+          last_name: student_last_name,
+          email: student_email,
+          date_of_birth,
+          grade,
+          additional_notes,
+          parent: {
+            parent_id,
+            first_name: parent_first_name,
+            last_name: parent_last_name,
+            email: parent_email,
+            phone: parent_phone,
+          },
+          enrollments: [],
+        };
+      }
+
+      if (class_id) {
+        acc[student_id].enrollments.push({
+          class_id,
+          days,
+          start_date,
+          end_date,
+          start_time,
+          end_time,
+        });
+      }
+
+      return acc;
+    }, {});
+
+    res.status(200).json(Object.values(groupedStudents));
   } catch (error) {
-    res.status(500).json({ message: `Error retrieving students: ${error}` });
+    console.error("Error fetching students:", error);
+    res.status(500).json({ message: "Failed to fetch students." });
   }
 };
 
 // Get single student by ID
 const getStudentById = async (req, res) => {
+  const { id } = req.params;
+
   try {
-    const student = await knex("students").where("id", req.params.id).first();
-    if (!student) {
+    const studentData = await knex("students")
+      .where("students.id", id)
+      .join("clients", "students.parent_id", "clients.id")
+      .leftJoin(
+        "class_enrollments",
+        "students.id",
+        "class_enrollments.student_id"
+      )
+      .leftJoin("classes", "class_enrollments.class_id", "classes.id")
+      .select(
+        "students.id as student_id",
+        "students.first_name as student_first_name",
+        "students.last_name as student_last_name",
+        "students.email as student_email",
+        "students.date_of_birth",
+        "students.grade",
+        "students.additional_notes",
+        "clients.id as parent_id",
+        "clients.parent_first_name",
+        "clients.parent_last_name",
+        "clients.parent_email",
+        "clients.parent_phone",
+        "classes.id as class_id",
+        "classes.days",
+        "classes.start_date",
+        "classes.end_date",
+        "classes.start_time",
+        "classes.end_time"
+      );
+
+    if (!studentData.length) {
       return res
         .status(404)
-        .json({ message: `Student not found with ID: ${req.params.id}` });
+        .json({ message: `Student with ID ${id} not found.` });
     }
+
+    const student = {
+      student_id: studentData[0].student_id,
+      first_name: studentData[0].student_first_name,
+      last_name: studentData[0].student_last_name,
+      email: studentData[0].student_email,
+      date_of_birth: studentData[0].date_of_birth,
+      grade: studentData[0].grade,
+      additional_notes: studentData[0].additional_notes,
+      parent: {
+        parent_id: studentData[0].parent_id,
+        first_name: studentData[0].parent_first_name,
+        last_name: studentData[0].parent_last_name,
+        email: studentData[0].parent_email,
+        phone: studentData[0].parent_phone,
+      },
+      enrollments: studentData
+        .filter((data) => data.class_id) // but onnly include classes if the student is enrolled in any otherwise done
+        .map((data) => ({
+          class_id: data.class_id,
+          days: data.days,
+          start_date: data.start_date,
+          end_date: data.end_date,
+          start_time: data.start_time,
+          end_time: data.end_time,
+        })),
+    };
+
     res.status(200).json(student);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: `Error retrieving student with ID ${req.params.id}: ${error}`,
-      });
+    console.error("Error fetching student by ID:", error);
+    res.status(500).json({ message: "Failed to fetch student." });
   }
 };
 
@@ -95,11 +237,9 @@ const updateStudentById = async (req, res) => {
 
     res.status(200).json({ message: "Student updated successfully." });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: `Error updating student with ID ${req.params.id}: ${error}`,
-      });
+    res.status(500).json({
+      message: `Error updating student with ID ${req.params.id}: ${error}`,
+    });
   }
 };
 
@@ -116,11 +256,9 @@ const deleteStudentById = async (req, res) => {
 
     res.status(200).json({ message: "Student deleted successfully." });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: `Error deleting student with ID ${req.params.id}: ${error}`,
-      });
+    res.status(500).json({
+      message: `Error deleting student with ID ${req.params.id}: ${error}`,
+    });
   }
 };
 

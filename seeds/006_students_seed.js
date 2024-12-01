@@ -9,6 +9,7 @@ export async function seed(knex) {
   // Inserts seed entries
   await knex("students").insert([
     {
+      parent_id: 1,
       first_name: "Emily",
       last_name: "Johnson",
       email: "emily.johnson@example.com",
@@ -17,14 +18,16 @@ export async function seed(knex) {
       additional_notes: "Needs help with math and science.",
     },
     {
+      parent_id: 1,
       first_name: "Michael",
-      last_name: "Brown",
-      email: "michael.brown@example.com",
+      last_name: "Johnson",
+      email: "michael.johnson@example.com",
       date_of_birth: "2011-08-22",
       grade: "Grade 7",
       additional_notes: "Interested in coding and robotics.",
     },
     {
+      parent_id: 2,
       first_name: "Sophia",
       last_name: "Davis",
       email: "sophia.davis@example.com",
@@ -33,6 +36,7 @@ export async function seed(knex) {
       additional_notes: "Excels in English and creative writing.",
     },
     {
+      parent_id: 3,
       first_name: "James",
       last_name: "Miller",
       email: "james.miller@example.com",
@@ -41,6 +45,7 @@ export async function seed(knex) {
       additional_notes: "Struggles with physics concepts.",
     },
     {
+      parent_id: 4,
       first_name: "Olivia",
       last_name: "Wilson",
       email: "olivia.wilson@example.com",
@@ -49,6 +54,7 @@ export async function seed(knex) {
       additional_notes: "Prefers hands-on science experiments.",
     },
     {
+      parent_id: 5,
       first_name: "Liam",
       last_name: "Martinez",
       email: "liam.martinez@example.com",
@@ -57,6 +63,7 @@ export async function seed(knex) {
       additional_notes: "Highly skilled in mathematics.",
     },
     {
+      parent_id: 6,
       first_name: "Ava",
       last_name: "Garcia",
       email: "ava.garcia@example.com",
@@ -65,6 +72,7 @@ export async function seed(knex) {
       additional_notes: "Interested in arts and crafts.",
     },
     {
+      parent_id: 7,
       first_name: "Noah",
       last_name: "Rodriguez",
       email: "noah.rodriguez@example.com",
@@ -73,6 +81,7 @@ export async function seed(knex) {
       additional_notes: "Enjoys coding and solving puzzles.",
     },
     {
+      parent_id: 8,
       first_name: "Isabella",
       last_name: "Hernandez",
       email: "isabella.hernandez@example.com",
@@ -81,6 +90,7 @@ export async function seed(knex) {
       additional_notes: "Excels in biology and chemistry.",
     },
     {
+      parent_id: 9,
       first_name: "Ethan",
       last_name: "Lopez",
       email: "ethan.lopez@example.com",

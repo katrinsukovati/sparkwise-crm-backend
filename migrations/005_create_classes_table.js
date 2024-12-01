@@ -41,7 +41,14 @@ export function up(knex) {
  * @returns { Promise<void> }
  */
 export function down(knex) {
-  return knex.schema.table("classes", (table) => {
-    table.dropColumn("semester_id");
-  });
+  return knex.schema
+    .table("classes", (table) => {
+      // Drop the foreign key constraint and then the column
+      table.dropForeign("semester_id");
+      table.dropColumn("semester_id");
+    })
+    .then(() => {
+      // Then drop the table
+      return knex.schema.dropTable("classes");
+    });
 }

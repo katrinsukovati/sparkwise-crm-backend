@@ -5,6 +5,14 @@
 export function up(knex) {
   return knex.schema.createTable("students", (table) => {
     table.increments("id").primary();
+    table
+      .integer("parent_id")
+      .unsigned()
+      .notNullable()
+      .references("id")
+      .inTable("clients")
+      .onDelete("CASCADE")
+      .onUpdate("CASCADE");
     table.string("first_name").notNullable();
     table.string("last_name").notNullable();
     table.string("email").notNullable().unique();
