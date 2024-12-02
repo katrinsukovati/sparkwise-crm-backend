@@ -16,17 +16,16 @@ dotenv.config();
 const { PORT, BACKEND_URL, CORS_ORIGIN, DEPLOYED_CORS_ORIGIN } = process.env;
 
 const app = express();
-app.use(cors({ origin: CORS_ORIGIN }));
-app.use(express.json());
 
-// Allow CORS for deployed app
+// Allow CORS for deployed app and local testing
 app.use(
   cors({
-    origin: DEPLOYED_CORS_ORIGIN,
-    methods: "GET,POST,PUT,DELETE,OPTIONS",
+    origin: [CORS_ORIGIN, DEPLOYED_CORS_ORIGIN],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
 );
+app.use(express.json());
 
 app.get("/", async (req, res) => {
   res.status(200).json({ message: "Welcome to SparkWise CRM" });
