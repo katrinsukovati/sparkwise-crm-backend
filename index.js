@@ -17,23 +17,21 @@ const { PORT, BACKEND_URL, CORS_ORIGIN, DEPLOYED_CORS_ORIGIN } = process.env;
 
 const app = express();
 
-const allowedOrigins = [CORS_ORIGIN, DEPLOYED_CORS_ORIGIN];
+const allowedOrigins = [
+  "http://localhost:5173", // Local frontend during development
+  "https://sparkwise-crm.netlify.app", // Deployed frontend on Netlify
+];
 
-// Allow CORS for deployed app and local testing
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (e.g., server-to-server calls)
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(
-          new Error(`CORS policy does not allow access from origin ${origin}`)
-        );
+        callback(new Error("Not allowed by CORS"));
       }
     },
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    credentials: true,
+    credentials: true, // Allow cookies, authorization headers
   })
 );
 
