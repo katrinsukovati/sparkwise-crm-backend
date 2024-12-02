@@ -13,11 +13,20 @@ import semestersRoutes from "./routes/semesters.js";
 import calendarRoutes from "./routes/calendar.js";
 
 dotenv.config();
-const { PORT, BACKEND_URL, CORS_ORIGIN } = process.env;
+const { PORT, BACKEND_URL, CORS_ORIGIN, DEPLOYED_CORS_ORIGIN } = process.env;
 
 const app = express();
 app.use(cors({ origin: CORS_ORIGIN }));
 app.use(express.json());
+
+// Allow CORS for deployed app
+app.use(
+  cors({
+    origin: DEPLOYED_CORS_ORIGIN,
+    methods: "GET,POST,PUT,DELETE,OPTIONS",
+    credentials: true,
+  })
+);
 
 app.get("/", async (req, res) => {
   res.status(200).json({ message: "Welcome to SparkWise CRM" });
